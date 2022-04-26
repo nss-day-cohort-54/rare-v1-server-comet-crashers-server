@@ -31,9 +31,32 @@ def get_all_tags():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # tag class above.
-            tags = Tags(row['id'], row['label'])
+            tag = Tags(row['id'], row['label'])
 
-            tags.append(tags.__dict__)
+            tags.append(tag.__dict__)
 
     # Use `json` package to properly serialize list as JSON
     return json.dumps(tags)
+
+def get_single_tag(id):
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            t.id,
+            t.label
+        FROM tags t
+        WHERE t.id = ?
+        """, ( id, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create a tag instance from the current row
+        tags = Tags(data['id'], data['label'])
+
+        return json.dumps(tags.__dict__)
