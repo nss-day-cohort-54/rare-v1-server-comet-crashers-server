@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-
+from views import get_all_categories, get_single_category
 from views.user import create_user, login_user
 
 
@@ -53,7 +53,24 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle Get requests to the server"""
-        pass
+        self._set_headers(200)
+
+        response = {}
+
+        # Parse URL and store entire tuple in a variable
+        parsed = self.parse_url()
+
+        # Response from parse_url() is a tuple with 2
+        if len(parsed) == 2:
+            ( resource, id ) = parsed
+
+            if resource == "categories":
+                if id is not None:
+                    response = f"{get_single_category(id)}"
+                else:
+                    response = f"{get_all_categories()}"
+                    
+        self.wfile.write(response.encode())
 
 
     def do_POST(self):

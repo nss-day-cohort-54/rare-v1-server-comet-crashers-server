@@ -15,7 +15,7 @@ def get_all_categories():
         SELECT
             c.id,
             c.label
-        FROM category c
+        FROM categories c
         """)
 
         # Initialize an empty list to hold all category representations
@@ -37,3 +37,26 @@ def get_all_categories():
 
     # Use `json` package to properly serialize list as JSON
     return json.dumps(categories)
+
+def get_single_category(id):
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            c.id,
+            c.label
+        FROM category c
+        WHERE c.id = ?
+        """, ( id, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create an category instance from the current row
+        category = Category(data['id'], data['label'])
+
+        return json.dumps(category.__dict__)
