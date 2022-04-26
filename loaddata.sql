@@ -87,3 +87,5 @@ CREATE TABLE "Categories" (
 INSERT INTO Categories ('label') VALUES ('News');
 INSERT INTO Tags ('label') VALUES ('JavaScript');
 INSERT INTO Reactions ('label', 'image_url') VALUES ('happy', 'https://pngtree.com/so/happy');
+
+INSERT INTO Posts ('user_id', 'category_id', 'title', 'publication_date', 'content') VALUES (2, 1, 'Shrek Tech Makes Me Sweat', 'April, 25,2022', 'Shrek is coming in hot with the new Shrek tv and go phone.  You will be oogling and orgring over every ounce of it.  These new devices are going to be so farquading tite.')
