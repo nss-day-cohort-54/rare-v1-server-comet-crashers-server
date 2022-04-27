@@ -78,8 +78,6 @@ def create_tag(new_tag):
         # the database.
         id = db_cursor.lastrowid
         
-        
-        
         dataset = db_cursor.fetchall()
     
         for tag in new_tag['tags']:
