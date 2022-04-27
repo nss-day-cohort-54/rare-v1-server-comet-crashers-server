@@ -1,9 +1,8 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+from views import create_post, delete_post, get_all_posts, get_single_post, update_post
+from views import create_user, login_user
 from views import get_all_categories, get_single_category, create_category
-from views.posts import get_all_posts, get_single_post
-from views.tag_requests import create_tag
-from views.user import create_user, login_user
 from views import get_all_tags, get_single_tag, create_tag
 
 
@@ -48,10 +47,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         """
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods',
-                         'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers',
-                         'X-Requested-With, Content-Type, Accept')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
     def do_GET(self):
@@ -72,6 +69,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_category(id)}"
                 else:
                     response = f"{get_all_categories()}"
+                    
             elif resource == "tags":
                 if id is not None:
                     response = f"{get_single_tag(id)}"
@@ -99,6 +97,8 @@ class HandleRequests(BaseHTTPRequestHandler):
             response = login_user(post_body)
         if resource == 'register':
             response = create_user(post_body)
+        if resource == 'posts':
+            response = create_post(post_body)
         if resource == "categories":
             response = create_category(post_body)
         if resource == "tags":
@@ -108,11 +108,36 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        pass
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url()
+
+
+        success = False
+
+        if resource == "posts":
+            success = update_post(id, post_body)
+        # rest of the elif's
+
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
+        self.wfile.write("".encode())  
 
     def do_DELETE(self):
         """Handle DELETE Requests"""
-        pass
+        self._set_headers(204)
+
+        
+        (resource, id) = self.parse_url()
+        if resource == "posts":
+            delete_post(id)
+        self.wfile.write("".encode())
 
 
 def main():
