@@ -60,3 +60,34 @@ def get_single_tag(id):
         tags = Tags(data['id'], data['label'])
 
         return json.dumps(tags.__dict__)
+    
+def create_tag(new_tag):
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        
+        db_cursor.execute("""
+        INSERT INTO Tags
+            ( label )
+        VALUES
+            ( ? );
+        """, ( new_tag['label'], ))
+        
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
+        
+        
+        
+        dataset = db_cursor.fetchall()
+    
+        for tag in new_tag['tags']:
+            db_cursor.execute("""
+            INSERT INTO Tags
+                ( id )
+            VALUES
+                ( ? );
+            """, (id, ))
+
+    return json.dumps(new_tag)
