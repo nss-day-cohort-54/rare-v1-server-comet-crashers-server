@@ -44,7 +44,7 @@ def get_all_posts():
         
             posts.append(post.__dict__)
         
-        return json.dumps(post.__dict__)
+        return json.dumps(posts)
 def get_single_post(id):
     with sqlite3.connect("./rare.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
