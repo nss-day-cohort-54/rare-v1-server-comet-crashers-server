@@ -5,7 +5,7 @@ from datetime import datetime
 from models.category import Category
 
 from models.post import Post
-from models.user import User
+
 
 def get_all_posts():
     with sqlite3.connect("./rare.sqlite3") as conn:
