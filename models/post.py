@@ -1,6 +1,6 @@
 # constructor for post will go here
 class Post():
-    def __init__(self, id, user_id, category_id, title, content, publication_date, image_url=""):
+    def __init__(self, id, user_id, category_id, title, content, publication_date="", image_url=""):
         self.id = id
         self.user_id = user_id
         self.category_id = category_id

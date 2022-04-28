@@ -93,7 +93,8 @@ def create_post(new_post):
             new_post['categoryId'], 
             new_post['title'], 
             new_post['content'], 
-            datetime.now(), ))
+            datetime.now(),
+            ))
         id = db_cursor.lastrowid
         
         new_post['id'] = id
