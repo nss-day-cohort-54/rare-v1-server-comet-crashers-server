@@ -78,10 +78,16 @@ def get_all_users():
         db_cursor = conn.cursor()
         db_cursor.execute("""
         SELECT
-            u.id,
-            u.username,
+            u.id, 
             u.first_name,
-            u.last_name
+            u.last_name,
+            u.username,
+            u.created_on,
+            u.active,
+            u.password,
+            u.profile_image_url,
+            u.email,
+            u.bio
         FROM Users u  
         ORDER BY u.username  
         """)
@@ -90,10 +96,7 @@ def get_all_users():
         
         dataset = db_cursor.fetchall()
         for row in dataset:
-            user = User(row['id'], row['username'], row['first_name'], row['last_name'])
-            
-            # user.user = user.__dict__
-            # user.category = category.__dict__
+            user = User(row['id'], row['first_name'], row['last_name'], row['username'], row['created_on'], row['active'], row['password'], row['profile_image_url'], row['email'], row['bio'])
             
             users.append(user.__dict__)
         
@@ -108,10 +111,16 @@ def get_single_user(id):
         # into the SQL statement.
         db_cursor.execute("""
         SELECT
-            u.id,
-            u.username username,
-            u.first_name first_name,
-            u.last_name last_name
+            u.id, 
+            u.first_name,
+            u.last_name,
+            u.username,
+            u.created_on,
+            u.active,
+            u.password,
+            u.profile_image_url,
+            u.email,
+            u.bio
         FROM Users u
         WHERE u.id = ?
         """, ( id, ))
@@ -120,6 +129,6 @@ def get_single_user(id):
         data = db_cursor.fetchone()
 
         # Create a user instance from the current row
-        users = User(data['id'], data['username'], data['first_name'], data['last_name'])
+        users = User(data['id'], data['first_name'], data['last_name'], data['username'], data['created_on'], data['active'], data['password'], data['profile_image_url'], data['email'], data['bio'])
 
         return json.dumps(users.__dict__)
