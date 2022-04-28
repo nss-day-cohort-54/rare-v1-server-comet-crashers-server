@@ -4,7 +4,7 @@ from views import create_post, delete_post, get_all_posts, get_single_post, upda
 from views import create_user, login_user, get_all_users, get_single_user
 from views import get_all_categories, get_single_category, create_category
 from views import get_all_tags, get_single_tag, create_tag
-from views.posts_requests import get_posts_by_user
+from views.posts_requests import get_posts_by_user, get_posts_by_category
 
 
 
@@ -96,6 +96,8 @@ class HandleRequests(BaseHTTPRequestHandler):
             # user as a filtering value?
             if key == "user" and resource == "posts":
                 response = get_posts_by_user(value)
+            elif key == "category_id" and resource == "posts":
+                response = get_posts_by_category(value)
                     
         self.wfile.write(response.encode())
 
