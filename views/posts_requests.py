@@ -185,3 +185,44 @@ def get_posts_by_user(user_id):
             posts.append(post.__dict__)
 
     return json.dumps(posts)
+
+# Given the user is on the /posts
+# When they select a category from the "Search by Category" dropdown
+# Then the list should update to show only posts from that category
+
+def get_posts_by_category(category_id):
+
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            p.id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.publication_date,
+            p.content,
+            c.label category_label
+        FROM Posts p  
+        JOIN Categories c
+            On c.id = p.category_id 
+        WHERE category_id = ?   
+        """, (category_id, ))
+
+        posts = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+
+            # Create an post instance from the current row
+            post = Post(row['id'], row['user_id'], row['category_id'],
+                        row['title'], row['publication_date'], row['content'])
+            post.category = row['category_label']
+
+            # Add the dictionary representation of the post to the list
+            posts.append(post.__dict__)
+
+    return json.dumps(posts)
