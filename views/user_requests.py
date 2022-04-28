@@ -1,6 +1,7 @@
 import sqlite3
 import json
 from datetime import datetime
+from models import User
 
 def login_user(user):
     """Checks for the user in the database
@@ -69,3 +70,56 @@ def create_user(user):
             'token': id,
             'valid': True
         })
+        
+def get_all_users():
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            u.id,
+            u.username,
+            u.first_name,
+            u.last_name
+        FROM Users u  
+        ORDER BY u.username  
+        """)
+        
+        users = []
+        
+        dataset = db_cursor.fetchall()
+        for row in dataset:
+            user = User(row['id'], row['username'], row['first_name'], row['last_name'])
+            
+            # user.user = user.__dict__
+            # user.category = category.__dict__
+            
+            users.append(user.__dict__)
+        
+    return json.dumps(users)
+
+def get_single_user(id):
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            u.id,
+            u.username username,
+            u.first_name first_name,
+            u.last_name last_name
+        FROM Users u
+        WHERE u.id = ?
+        """, ( id, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create a user instance from the current row
+        users = User(data['id'], data['username'], data['first_name'], data['last_name'])
+
+        return json.dumps(users.__dict__)
