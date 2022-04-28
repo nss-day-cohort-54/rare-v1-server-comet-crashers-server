@@ -172,7 +172,7 @@ def get_posts_by_user(user_id):
 
             # Create an post instance from the current row
             post = Post(row['id'], row['user_id'], row['category_id'],
-                        row['title'], row['publication_date'], row['content'])
+                        row['title'], row['content'], row['publication_date'])
             post.category = row['category_label']
 
             # Create a User instance from the current row
