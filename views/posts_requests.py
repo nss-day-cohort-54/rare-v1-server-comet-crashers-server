@@ -3,7 +3,7 @@ import sqlite3
 import json
 from datetime import datetime
 from models.category import Category
-
+from models.user import User
 from models.post import Post
 
 
@@ -137,3 +137,51 @@ def delete_post(id):
         DELETE FROM Posts
         WHERE id = ?
         """, (id, ))
+        
+def get_posts_by_user(user_id):
+
+    with sqlite3.connect("./rare.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            p.id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.publication_date,
+            p.content,
+            u.username username,
+            u.first_name first_name,
+            u.last_name last_name,
+            c.label category_label
+        FROM Posts p  
+        JOIN Users u
+            On u.id = p.user_id
+        JOIN Categories c
+            On c.id = p.category_id 
+        WHERE p.user_id = ?   
+        """, (user_id, ))
+
+        posts = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+
+            # Create an post instance from the current row
+            post = Post(row['id'], row['user_id'], row['category_id'],
+                        row['title'], row['publication_date'], row['content'])
+            post.category = row['category_label']
+
+            # Create a User instance from the current row
+            user = User(row['id'], row['username'], row['first_name'], row['last_name'])
+
+            # Add the dictionary representation of the user to the post
+            post.user = user.__dict__
+
+            # Add the dictionary representation of the post to the list
+            posts.append(post.__dict__)
+
+    return json.dumps(posts)
