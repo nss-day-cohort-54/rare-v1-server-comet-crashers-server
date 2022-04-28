@@ -4,6 +4,7 @@ from views import create_post, delete_post, get_all_posts, get_single_post, upda
 from views import create_user, login_user
 from views import get_all_categories, get_single_category, create_category
 from views import get_all_tags, get_single_tag, create_tag
+from views.posts_requests import get_posts_by_user
 
 
 
@@ -81,6 +82,15 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_post(id)}"
                 else:
                     response = f"{get_all_posts()}"
+                    
+        elif len(parsed) == 3:
+            ( resource, key, value ) = parsed
+
+            # Is the resource `posts` and was there a
+            # query parameter that specified the post
+            # user as a filtering value?
+            if key == "user" and resource == "posts":
+                response = get_posts_by_user(value)
                     
         self.wfile.write(response.encode())
 
