@@ -18,8 +18,8 @@ def get_all_posts():
             p.user_id,
             p.category_id,
             p.title,
-            p.publication_date,
             p.content,
+            p.publication_date,
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
@@ -37,7 +37,7 @@ def get_all_posts():
         
         dataset = db_cursor.fetchall()
         for row in dataset:
-            post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['publication_date'], row['content'])
+            post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'])
             post.user = f"{row['first_name']}  {row['last_name']}"
             post.category = row['category_label']
             
@@ -58,8 +58,8 @@ def get_single_post(id):
             p.user_id,
             p.category_id,
             p.title,
-            p.publication_date,
             p.content,
+            p.publication_date,
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
@@ -75,7 +75,7 @@ def get_single_post(id):
         
         data = db_cursor.fetchone()
         
-        post = Post(data['id'], data['user_id'], data['category_id'], data['title'], data['publication_date'], data['content'])
+        post = Post(data['id'], data['user_id'], data['category_id'], data['title'], data['content'], data['publication_date'])
         post.user = f"{data['first_name']}  {data['last_name']}"
         post.category = data['category_label']
 
@@ -86,14 +86,15 @@ def create_post(new_post):
         
         db_cursor.execute(""" 
         INSERT INTO Posts
-            (user_id, category_id, title, publication_date, content)
+            (user_id, category_id, title, content, publication_date )
         VALUES
             ( ?, ?, ?, ?, ? );              
         """, ( new_post['userId'], 
             new_post['categoryId'], 
             new_post['title'], 
-            new_post['publicationDate'], 
-            new_post['content'], ))
+            new_post['content'], 
+            datetime.now(),
+            ))
         id = db_cursor.lastrowid
         
         new_post['id'] = id
@@ -109,14 +110,14 @@ def update_post(id, new_post):
                 user_id = ?,
                 category_id = ?,
                 title = ?,
-                publication_date = ?,
-                content = ?
+                content = ?,
+                publication_date = ?
         WHERE id = ?
         """, ( new_post['userId'], 
             new_post['categoryId'], 
-            new_post['title'], 
-            new_post['publicationDate'], 
-            new_post['content'], id,  ))
+            new_post['title'],  
+            new_post['content'], 
+            new_post['publicationDate'], id,  ))
 
         # Were any rows affected?
         # Did the client send an `id` that exists?
@@ -172,7 +173,7 @@ def get_posts_by_user(user_id):
 
             # Create an post instance from the current row
             post = Post(row['id'], row['user_id'], row['category_id'],
-                        row['title'], row['publication_date'], row['content'])
+                        row['title'], row['content'], row['publication_date'])
             post.category = row['category_label']
 
             # Create a User instance from the current row
