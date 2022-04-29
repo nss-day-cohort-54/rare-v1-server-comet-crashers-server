@@ -155,14 +155,11 @@ def get_posts_by_user(user_id):
             p.content,
             u.username username,
             u.first_name first_name,
-            u.last_name last_name,
-            c.label category_label
+            u.last_name last_name
         FROM Posts p  
         JOIN Users u
-            On u.id = p.user_id
-        JOIN Categories c
-            On c.id = p.category_id 
-        WHERE p.user_id = ?   
+            On u.id = p.user_id 
+        WHERE user_id = ?   
         """, (user_id, ))
 
         posts = []
@@ -173,13 +170,7 @@ def get_posts_by_user(user_id):
             # Create an post instance from the current row
             post = Post(row['id'], row['user_id'], row['category_id'],
                         row['title'], row['publication_date'], row['content'])
-            post.category = row['category_label']
-
-            # Create a User instance from the current row
-            user = User(row['id'], row['username'], row['first_name'], row['last_name'])
-
-            # Add the dictionary representation of the user to the post
-            post.user = user.__dict__
+            post.user = row['username']
 
             # Add the dictionary representation of the post to the list
             posts.append(post.__dict__)
