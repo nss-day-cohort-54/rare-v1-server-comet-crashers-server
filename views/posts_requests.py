@@ -170,7 +170,8 @@ def get_posts_by_user(user_id):
             # Create an post instance from the current row
             post = Post(row['id'], row['user_id'], row['category_id'],
                         row['title'], row['publication_date'], row['content'])
-            post.user = row['username']
+            post.user = f"{row['first_name']}  {row['last_name']}"
+            post.category = row['category_label']
 
             # Add the dictionary representation of the post to the list
             posts.append(post.__dict__)
@@ -211,8 +212,8 @@ def get_posts_by_category(category_id):
             # Create an post instance from the current row
             post = Post(row['id'], row['user_id'], row['category_id'],
                         row['title'], row['publication_date'], row['content'])
+            post.user = f"{row['first_name']}  {row['last_name']}"
             post.category = row['category_label']
-
             # Add the dictionary representation of the post to the list
             posts.append(post.__dict__)
 
