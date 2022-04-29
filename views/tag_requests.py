@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Tags
+from models import Tag
 
 def get_all_tags():
     # Open a connection to the database
@@ -31,7 +31,7 @@ def get_all_tags():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # tag class above.
-            tag = Tags(row['id'], row['label'])
+            tag = Tag(row['id'], row['label'])
 
             tags.append(tag.__dict__)
 
@@ -57,7 +57,7 @@ def get_single_tag(id):
         data = db_cursor.fetchone()
 
         # Create a tag instance from the current row
-        tags = Tags(data['id'], data['label'])
+        tags = Tag(data['id'], data['label'])
 
         return json.dumps(tags.__dict__)
     

@@ -3,6 +3,7 @@ import sqlite3
 import json
 from datetime import datetime
 from models.category import Category
+from models.tag import Tag
 from models.user import User
 from models.post import Post
 
@@ -23,28 +24,40 @@ def get_all_posts():
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
+            t.id tag_id,
+            t.label,
             c.label category_label
         FROM Posts p  
         JOIN Users u
             On u.id = p.user_id
         JOIN Categories c
-            On c.id = p.category_id 
-        
-        ORDER BY p.publication_date  
+            On c.id = p.category_id
+        JOIN PostTags as pt
+            On pt.post_id = p.id   
+        JOIN Tags as t
+            On t.id = pt.tag_id 
+        ORDER BY p.id  
         """)
         
         posts = []
         
-        dataset = db_cursor.fetchall()
+        dataset = db_cursor.fetchall()       
+        post = Post(0, 0, 0, 0,'', '', '')
         for row in dataset:
-            post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'])
-            post.user = f"{row['first_name']}  {row['last_name']}"
-            post.category = row['category_label']
+            if row['id'] != post.id:
+                post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'], "", [])
+                post.user = f"{row['first_name']}  {row['last_name']}"
+                post.category = row['category_label']
             
             # post.user = user.__dict__
             # post.category = category.__dict__
-            
-            posts.append(post.__dict__)
+            tag = Tag(row['tag_id'],row['label'])
+            post.tags.append(tag.__dict__)
+            try:
+                if dataset[dataset.index(row)]['id'] != dataset[(dataset.index(row)) +1]['id']:              
+                    posts.append(post.__dict__)
+            except:
+                posts.append(post.__dict__)
         
     return json.dumps(posts)
 def get_single_post(id):
@@ -63,22 +76,40 @@ def get_single_post(id):
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
+            t.id tag_id,
+            t.label,
             c.label category_label
         FROM Posts p  
         JOIN Users u
             On u.id = p.user_id
         JOIN Categories c
-            On c.id = p.category_id 
-        WHERE p.id = ? 
-        ORDER BY p.publication_date  
+            On c.id = p.category_id
+        JOIN PostTags as pt
+            On pt.post_id = p.id   
+        JOIN Tags as t
+            On t.id = pt.tag_id 
+        WHERE p.id = ?
+        ORDER BY p.id  
         """, (id, ))
         
-        data = db_cursor.fetchone()
+        dataset = db_cursor.fetchall()       
+        post = Post(0, 0, 0, 0,'', '', '')
+        for row in dataset:
+            if row['id'] != post.id:
+                post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'], "", [])
+                post.user = f"{row['first_name']}  {row['last_name']}"
+                post.category = row['category_label']
+            
+            # post.user = user.__dict__
+            # post.category = category.__dict__
+            tag = Tag(row['tag_id'],row['label'])
+            post.tags.append(tag.__dict__)
+            try:
+                if dataset[dataset.index(row)]['id'] != dataset[(dataset.index(row)) +1]['id']:              
+                    post.__dict__
+            except:
+                post.__dict__
         
-        post = Post(data['id'], data['user_id'], data['category_id'], data['title'], data['content'], data['publication_date'])
-        post.user = f"{data['first_name']}  {data['last_name']}"
-        post.category = data['category_label']
-
         return json.dumps(post.__dict__)
 def create_post(new_post):
     with sqlite3.connect("./rare.sqlite3") as conn:
@@ -99,6 +130,14 @@ def create_post(new_post):
         
         new_post['id'] = id
         
+        for tag in new_post['tags']:
+            db_cursor.execute("""
+            INSERT INTO PostTags
+                ( post_id, tag_id  )
+            VALUES
+                ( ?, ?);
+            """, (new_post['id'], tag,  ))
+        
     return json.dumps(new_post)
 def update_post(id, new_post):
     with sqlite3.connect("./rare.sqlite3") as conn:
@@ -118,6 +157,18 @@ def update_post(id, new_post):
             new_post['title'],  
             new_post['content'], 
             new_post['publicationDate'], id,  ))
+        db_cursor.execute("""
+        DELETE FROM PostTags
+        WHERE post_id = ?              
+        """, (id, )) 
+        for tag in new_post['tags']:
+            db_cursor.execute("""
+            INSERT INTO PostTags
+                ( post_id, tag_id )
+            VALUES
+                ( ?, ?);
+            """, (id, tag, ))
+        
 
         # Were any rows affected?
         # Did the client send an `id` that exists?
@@ -139,6 +190,11 @@ def delete_post(id):
         WHERE id = ?
         """, (id, ))
         
+        db_cursor.execute("""
+        DELETE FROM PostTag
+        WHERE post_id = ?              
+        """, (id, ))
+        
 def get_posts_by_user(user_id):
 
     with sqlite3.connect("./rare.sqlite3") as conn:
@@ -152,39 +208,47 @@ def get_posts_by_user(user_id):
             p.user_id,
             p.category_id,
             p.title,
-            p.publication_date,
             p.content,
+            p.publication_date,
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
+            t.id tag_id,
+            t.label,
             c.label category_label
         FROM Posts p  
         JOIN Users u
             On u.id = p.user_id
         JOIN Categories c
-            On c.id = p.category_id 
+            On c.id = p.category_id
+        JOIN PostTags as pt
+            On pt.post_id = p.id   
+        JOIN Tags as t
+            On t.id = pt.tag_id 
         WHERE p.user_id = ?   
+        ORDER BY p.id  
         """, (user_id, ))
 
         posts = []
-        dataset = db_cursor.fetchall()
-
+        
+        dataset = db_cursor.fetchall()       
+        post = Post(0, 0, 0, 0,'', '', '')
         for row in dataset:
-
-            # Create an post instance from the current row
-            post = Post(row['id'], row['user_id'], row['category_id'],
-                        row['title'], row['content'], row['publication_date'])
-            post.category = row['category_label']
-
-            # Create a User instance from the current row
-            user = User(row['id'], row['username'], row['first_name'], row['last_name'])
-
-            # Add the dictionary representation of the user to the post
-            post.user = user.__dict__
-
-            # Add the dictionary representation of the post to the list
-            posts.append(post.__dict__)
-
+            if row['id'] != post.id:
+                post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'], "", [])
+                post.user = f"{row['first_name']}  {row['last_name']}"
+                post.category = row['category_label']
+            
+            # post.user = user.__dict__
+            # post.category = category.__dict__
+            tag = Tag(row['tag_id'],row['label'])
+            post.tags.append(tag.__dict__)
+            try:
+                if dataset[dataset.index(row)]['id'] != dataset[(dataset.index(row)) +1]['id']:              
+                    posts.append(post.__dict__)
+            except:
+                posts.append(post.__dict__)
+        
     return json.dumps(posts)
 
 # Given the user is on the /posts
@@ -209,27 +273,40 @@ def get_posts_by_category(category_id):
             u.username username,
             u.first_name first_name,
             u.last_name last_name,
+            t.id tag_id,
+            t.label,
             c.label category_label
         FROM Posts p  
         JOIN Users u
             On u.id = p.user_id
         JOIN Categories c
-            On c.id = p.category_id 
-        WHERE category_id = ?   
-        ORDER BY p.publication_date
+            On c.id = p.category_id
+        JOIN PostTags as pt
+            On pt.post_id = p.id   
+        JOIN Tags as t
+            On t.id = pt.tag_id 
+        WHERE p.category_id = ?   
+        ORDER BY p.id 
         """, (category_id, ))
 
         posts = []
-        dataset = db_cursor.fetchall()
-
+        
+        dataset = db_cursor.fetchall()       
+        post = Post(0, 0, 0, 0,'', '', '')
         for row in dataset:
-
-            # Create an post instance from the current row
-            post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'])
-            post.user = f"{row['first_name']}  {row['last_name']}"
-            post.category = row['category_label']
-
-            # Add the dictionary representation of the post to the list
-            posts.append(post.__dict__)
-
+            if row['id'] != post.id:
+                post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'], "", [])
+                post.user = f"{row['first_name']}  {row['last_name']}"
+                post.category = row['category_label']
+            
+            # post.user = user.__dict__
+            # post.category = category.__dict__
+            tag = Tag(row['tag_id'],row['label'])
+            post.tags.append(tag.__dict__)
+            try:
+                if dataset[dataset.index(row)]['id'] != dataset[(dataset.index(row)) +1]['id']:              
+                    posts.append(post.__dict__)
+            except:
+                posts.append(post.__dict__)
+        
     return json.dumps(posts)
