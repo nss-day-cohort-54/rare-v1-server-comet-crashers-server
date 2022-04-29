@@ -204,13 +204,19 @@ def get_posts_by_category(category_id):
             p.user_id,
             p.category_id,
             p.title,
-            p.publication_date,
             p.content,
+            p.publication_date,
+            u.username username,
+            u.first_name first_name,
+            u.last_name last_name,
             c.label category_label
         FROM Posts p  
+        JOIN Users u
+            On u.id = p.user_id
         JOIN Categories c
             On c.id = p.category_id 
         WHERE category_id = ?   
+        ORDER BY p.publication_date
         """, (category_id, ))
 
         posts = []
@@ -219,8 +225,8 @@ def get_posts_by_category(category_id):
         for row in dataset:
 
             # Create an post instance from the current row
-            post = Post(row['id'], row['user_id'], row['category_id'],
-                        row['title'], row['publication_date'], row['content'])
+            post = Post(row['id'], row['user_id'], row['category_id'], row['title'], row['content'], row['publication_date'])
+            post.user = f"{row['first_name']}  {row['last_name']}"
             post.category = row['category_label']
 
             # Add the dictionary representation of the post to the list
