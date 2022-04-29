@@ -101,3 +101,20 @@ INSERT INTO Posts ('user_id', 'category_id', 'title', 'publication_date', 'conte
 
 INSERT INTO Users ('first_name', 'last_name', 'email', 'bio', 'username', 'password') VALUES ('Derek', 'Chills', 'drchills420@notmail.com', 'Pokem ipsum dolor sit amet Parasect Exeggcute our courage will pull us through Petilil Numel Trapinch. Scratch Clefairy Smoochum Stoutland Ursaring Abomasnow Mirror Move. Squirtle Zoroark Zebstrika The Power Of One Quilava Pidgeot Marsh Badge. Pokemon Phione Ambipom Milotic Scyther Bronzor Shroomish. Dragon Wobbuffet Walrein Groudon Grumpig Crawdaunt Ninjask.', 'dchills69', '66669420')
 INSERT INTO Users ('first_name', 'last_name', 'email', 'bio', 'username', 'password') VALUES ('Tony', 'Cheese', 'tortuga69@notmail.com', 'Red Poison Sting Zigzagoon Luvdisc Skorupi Machoke Durant. Viridian City Nidoqueen Sawk Venomoth Gigalith Tirtouga Surskit. Viridian City Mirror Move to catch them is my real test Archeops Hoppip Hidden Machine Burnt Berry. Sunt in culpa Bubble Hoppip anim id est laborum Super Potion Seismitoad Crustle. Blue Chatot Yellow Wingull Trubbish Simisear Samurott.', 'cheese420', '66669420')
+
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (1, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (1, 2);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (1, 3);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (8, 2);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (8, 3);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (9, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (9, 3);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (10, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (10, 2);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (10, 3);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (11, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (12, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (12, 3);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (13, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (14, 1);
+INSERT INTO PostTags ('post_id', 'tag_id') VALUES (14, 2);
